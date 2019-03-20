@@ -20,7 +20,6 @@ $(document).ready(function () {
     var yAxis = d3.svg.axis().orient("left");
 
     var svg;
-    var nodes = [];
     var links = [];
     var fdgNodes = [];
     var fdgLinks = [];
@@ -57,6 +56,7 @@ $(document).ready(function () {
                 });
                 data.push(obj);
 
+                // node data of Force-Directed-Graph
                 var node1 = [];
                 node1.name = cols[i];
                 node1.group = i;
@@ -72,6 +72,7 @@ $(document).ready(function () {
                 link1.value = isNaN(ele.correlation) ? 0 : Math.abs(ele.correlation);
                 links.push(link1);   //{source: String1, target: String2, value: Number}
 
+                // link data of Force-Directed-Graph
                 var link2 = [];
                 for (j = 0; j < fdgNodes.length; j++) {
                     if (link1.source === fdgNodes[j].name) {
@@ -85,6 +86,7 @@ $(document).ready(function () {
                         break;
                     }
                 }
+                link2.value = isNaN(ele.correlation) ? 0 : Math.abs(ele.correlation);
                 fdgLinks.push(link2);
             });
         });
@@ -92,8 +94,9 @@ $(document).ready(function () {
 
     // Reset the data sources
     function reset() {
-        nodes = [];
+        fdgNodes = [];
         links = [];
+        fdgLinks = [];
         categories = 1;
         $("svg").empty();
     }
@@ -114,7 +117,7 @@ $(document).ready(function () {
                     return;
                 }
                 if (form.visualization[2].checked) {
-                    forceDirectedGraph(fdgNodes, fdgLinks);
+                    forceDirectedGraph(categories, fdgNodes, fdgLinks);
                     return;
                 }
             }
@@ -257,19 +260,21 @@ $(document).ready(function () {
     }
 
     // Create the Force Directed Graph
-    function forceDirectedGraph(fdgnodes, fdglinks) {
+    function forceDirectedGraph(categories, fdgnodes, fdglinks) {
         var force = d3.layout.force()
             .nodes(d3.values(fdgnodes))
             .links(fdglinks)
             .size([width + margin.left + margin.right, height + margin.top + margin.bottom])
-            .linkDistance(100)
+            .linkDistance(function (d) {
+                return 400 * Math.sqrt(1 - d.value * d.value);
+            })
             .charge(-1500)
             .on("tick", tick)
             .start();
 
         svg = d3.select('#chart').append('svg')
             .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
+            .attr('height', height + margin.top + margin.bottom);
 
         var edges_line = svg.append('g').selectAll('.edges-line')
             .data(force.links())
@@ -295,8 +300,8 @@ $(document).ready(function () {
             .attr({
                 'class': 'edgelabel',
                 'dx': 80,
-                'dy': -5,
-            })
+                'dy': -5
+            });
 
         edges_text.append('textPath')
             .attr('xlink:href', function (d, i) {
@@ -307,6 +312,8 @@ $(document).ready(function () {
                 return d.relation;
             });
 
+        var colour = d3.scale.category20();
+
         var circles = svg.append('g').selectAll('circle')
             .data(force.nodes())
             .enter()
@@ -314,9 +321,8 @@ $(document).ready(function () {
             .attr({
                 'class': 'circle-node',
                 'r': 15,
-                'fill': "red",
-                'stroke': function (d) {
-                    return Math.sqrt(1 - d.value * d.value);
+                'fill': function (d) {
+                    return colour(d.group);
                 },
                 'stroke-width': '4'
             })
