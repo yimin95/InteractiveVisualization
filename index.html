@@ -113,16 +113,17 @@
 </head>
 
 <body>
-<input type="file" name="filename" id="filename">
-<button id="upload">upload</button>
-<button id="zoom_in">+</button>
-<button id="zoom_out">-</button>
-
-<form name="form" action="" method="" style="position:absolute;top:90px;left:460px;line-height:20.5px;">
-    <input type="radio" class="radioclass1" name="visualization" value="Heatmap">Heatmap<br>
-    <input type="radio" class="radioclass1" name="visualization" value="Bar Graph">Bar Graph<br>
-    <input type="radio" class="radioclass1" name="visualization" value="Force-Directed Graph" checked="true">Force-Directed Graph<br>
-</form>
+<div class="content">
+    <input type="file" name="filename" id="filename">
+    <button id="upload">upload</button>
+    <button id="zoom_in">+</button>
+    <button id="zoom_out">-</button>
+    <form name="form" action="" method="">
+        <input type="radio" class="radioclass1" name="visualization" value="Heatmap">Heatmap<br>
+        <input type="radio" class="radioclass1" name="visualization" value="Bar Graph">Bar Graph<br>
+        <input type="radio" class="radioclass1" name="visualization" value="Force-Directed Graph">Force-Directed Graph<br>
+    </form>
+</div>
 
 
 <div class="csv"></div>
