@@ -1,17 +1,11 @@
 $(document).ready(function () {
 
 
-
     var margin = {top: 100, right: 50, bottom: 50, left: 100},
 //        dim = Math.min(parseInt(d3.select("#chart").style("width")), parseInt(d3.select("#chart").style("height"))),
         dim = 600,
         width = dim - margin.left - margin.right,
         height = dim - margin.top - margin.bottom;
-    //zoom function
-    var transformArray = {k: 1, x: width / 2, y: height / 2};
-    // Set color
-    var color_range = colorbrewer.YlOrRd[9];
-    var color = d3.scale.quantile().domain([0, 1]).range(color_range);
 
     var xScale = d3.scale.ordinal().rangeBands([0, width]);
     var yScale = d3.scale.ordinal().rangeBands([0, height]);
@@ -23,11 +17,12 @@ $(document).ready(function () {
     var fdgNodes = [];
     var fdgLinks = [];
     var categories = 1;
-    var g;
-
+    var g1;
+    var g2;
+    var g3;
 
     $('#upload').click(function () {
-        var zoom = d3.behavior.zoom().scaleExtent([1, 10]).on("zoom", zoomed);
+        var zoom;
         //var zoom = d3.zoom().on("zoom", zoomed);
         reset();
 
@@ -90,41 +85,28 @@ $(document).ready(function () {
                 link2.value = isNaN(ele.correlation) ? 0 : Math.abs(ele.correlation);
                 fdgLinks.push(link2);
             });
-
-
-            // Select visualization method
-            d3.selectAll(".radioclass1")
-                .on("click", function () {
-                    // Remove current visualization
-                    $("svg").empty();
-                    svg = d3.select("#chart")
-                        .attr("width", width + margin.left + margin.right)
-                        .attr("height", height + margin.top + margin.bottom)
-                        .call(zoom)
-                        .append("g")
-                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-                    g = svg.append("g")
-                        .attr("class", "everything")
-                        .attr("transform", function (d) {
-                            return "translate(" + d + ")";
-                        });
-
-                    if (form.visualization[0].checked) {
-                        heatmap(categories, links);
-                        return;
-                    }
-                    if (form.visualization[1].checked) {
-                        bar(links);
-                        return;
-                    }
-                    if (form.visualization[2].checked) {
-                        forceDirectedGraph(categories, fdgNodes, fdgLinks);
-                        return;
-                    }
-                });
         });
 
-        
+        // Select visualization method
+        d3.selectAll(".radioclass1")
+            .on("click", function () {
+                // Remove current visualization
+                $("svg").empty();
+
+                if (form.visualization[0].checked) {
+                    heatmap(categories, links);
+                    return;
+                }
+                if (form.visualization[1].checked) {
+                    bar(links);
+                    return;
+                }
+                if (form.visualization[2].checked) {
+                    forceDirectedGraph(categories, fdgNodes, fdgLinks);
+                    return;
+                }
+            });
+
         // Reset the data sources
         function reset() {
             fdgNodes = [];
@@ -136,6 +118,23 @@ $(document).ready(function () {
 
         // Create the Heatmap
         function heatmap(categories, links) {
+            zoom = d3.behavior.zoom().on("zoom", zoomed1);
+            svg = d3.select("#chart")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .call(zoom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            g1 = svg.append("g")
+                .attr("class", "everything")
+                .attr("transform", function (d) {
+                    return "translate(1,1)";
+                });
+
+            // Set color
+            var color_range = colorbrewer.YlOrRd[9];
+            var color = d3.scale.quantile().domain([0, 1]).range(color_range);
+
             yScale = d3.scale.ordinal().rangeBands([0, height]);
 
             // Show up label for each block
@@ -149,7 +148,7 @@ $(document).ready(function () {
 
             svg.call(tip);
             var gridSize = width / categories;
-            g.selectAll(".correlation")
+            g1.selectAll(".correlation")
                 .data(links)
                 .enter().append("rect")
                 .attr("class", "correlation")
@@ -176,7 +175,7 @@ $(document).ready(function () {
             xScale.domain(names);
             xAxis.scale(xScale);
 
-            g.append("g")
+            g1.append("g")
                 .attr("class", "x axis")
                 .call(xAxis)
                 .selectAll("text")
@@ -192,7 +191,7 @@ $(document).ready(function () {
 
             yAxis.scale(yScale);
 
-            g.append("g")
+            g1.append("g")
                 .attr("class", "y axis")
                 .call(yAxis)
                 .selectAll("text")
@@ -202,6 +201,19 @@ $(document).ready(function () {
 
         // Create the Bar Graph
         function bar(links) {
+            zoom = d3.behavior.zoom().on("zoom", zoomed2);
+            svg = d3.select("#chart")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .call(zoom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            g2 = svg.append("g")
+                .attr("class", "everything")
+                .attr("transform", function (d) {
+                    return "translate(1,1)";
+                });
+
             yScale = d3.scale.linear().range([height, 0]);
 
             var names = [];
@@ -219,7 +231,7 @@ $(document).ready(function () {
 
             yAxis.scale(yScale);
 
-            g.append("g")
+            g2.append("g")
                 .attr("class", "x axis")
                 .attr("transform", "translate(0," + height + ")")
                 .call(xAxis)
@@ -229,7 +241,7 @@ $(document).ready(function () {
                 .attr("dy", "-.55em")
                 .attr("transform", "rotate(-90)");
 
-            g.append("g")
+            g2.append("g")
                 .attr("class", "y axis")
                 .call(yAxis)
                 .append("text")
@@ -239,7 +251,7 @@ $(document).ready(function () {
                 .style("text-anchor", "end")
                 .text("Correlation Value");
 
-            g.selectAll("bar")
+            g2.selectAll("bar")
                 .data(links)
                 .enter().append("rect")
                 .style("fill", "steelblue")
@@ -257,6 +269,19 @@ $(document).ready(function () {
 
         // Create the Force Directed Graph
         function forceDirectedGraph(categories, fdgnodes, fdglinks) {
+            zoom = d3.behavior.zoom().on("zoom", zoomed3);
+            svg = d3.select("#chart")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .call(zoom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            g3 = svg.append("g")
+                .attr("class", "everything")
+                .attr("transform", function (d) {
+                    return "translate(1,1)";
+                });
+
             var force = d3.layout.force()
                 .nodes(d3.values(fdgnodes))
                 .links(fdglinks)
@@ -268,7 +293,7 @@ $(document).ready(function () {
                 .on("tick", tick)
                 .start();
 
-            var edges_line = g.append('g').selectAll('.edges-line')
+            var edges_line = g3.append('g').selectAll('.edges-line')
                 .data(force.links())
                 .enter()
                 .append('path')
@@ -284,7 +309,7 @@ $(document).ready(function () {
                     'stroke-width': '2'
                 })
 
-            var edges_text = g.append("g").selectAll(".edgelabel")
+            var edges_text = g3.append("g").selectAll(".edgelabel")
                 .data(force.links())
                 .enter()
                 .append("text")
@@ -306,7 +331,7 @@ $(document).ready(function () {
 
             var colour = d3.scale.category20();
 
-            var circles = g.append('g').selectAll('circle')
+            var circles = g3.append('g').selectAll('circle')
                 .data(force.nodes())
                 .enter()
                 .append('circle')
@@ -333,7 +358,7 @@ $(document).ready(function () {
                 })
                 .call(force.drag);
 
-            var node_text = g.append('g').selectAll('text')
+            var node_text = g3.append('g').selectAll('text')
                 .data(force.nodes())
                 .enter()
                 .append('text')
@@ -374,7 +399,6 @@ $(document).ready(function () {
                 return "translate(" + d.x + "," + d.y + ")";
             }
         }
-
 
         /*
                 function resize() {
@@ -419,59 +443,101 @@ $(document).ready(function () {
                 resize();
         */
 
+        // initialize transformArray and zoom function for each visualization method
+        var transformArray1 = {k: 1, x: width / 2, y: height / 2};
+        var transformArray2 = {k: 1, x: width / 2, y: height / 2};
+        var transformArray3 = {k: 1, x: width / 2, y: height / 2};
 
-        var  transformArray = {k:1,x:width/2,y:height/2};
-
-        function zoomed() {
-            transformArray = d3.event.transform;
-            console.log(transformArray);
-            g.attr("transform", d3.event.transform);
+        function zoomed1() {
+            transformArray1 = {k: d3.event.scale, x: d3.event.translate[0], y: d3.event.translate[1]};
+            g1.attr("transform", "translate(" + transformArray1.x + "," + transformArray1.y + ")scale(" + transformArray1.k + ")");
         }
 
-        function interpolateZoom(translate, scale) {
-            var self = this;
-            return d3.transition().duration(350).tween("zoom", function () {
-                var iTranslate = d3.interpolate(zoom.translate(), translate),
-                    iScale = d3.interpolate(zoom.scale(), scale);
-                return function (t) {
-                    zoom
-                        .scale(iScale(t))
-                        .translate(iTranslate(t));
-                    zoomed();
-                };
-            });
+        function zoomed2() {
+            transformArray2 = {k: d3.event.scale, x: d3.event.translate[0], y: d3.event.translate[1]};
+            g2.attr("transform", "translate(" + transformArray2.x + "," + transformArray2.y + ")scale(" + transformArray2.k + ")");
+        }
+
+        function zoomed3() {
+            transformArray3 = {k: d3.event.scale, x: d3.event.translate[0], y: d3.event.translate[1]};
+            g3.attr("transform", "translate(" + transformArray3.x + "," + transformArray3.y + ")scale(" + transformArray3.k + ")");
         }
 
         function zoomClick() {
-            // console.log(transformArray);
-            var clicked = d3.event.target,
-                factor = 0.189207,
-                center = [width / 2, height / 2],
-                // extent = zoom.extentScale,
-                // translate = [d3.event.transform.x,d3.event.transform.y],
-                translate0 = [],
-                l = [],
-                view = transformArray;
+            if (form.visualization[0].checked) {
+                var clicked = d3.event.target,
+                    factor = 0.189207,
+                    center = [width / 2, height / 2],
+                    translate0 = [],
+                    l = [],
+                    view = transformArray1;
 
+                d3.event.preventDefault();
+                direction = (this.id === 'zoom_in') ? 1 : -1;
+                target_zoom = view.k * (1 + factor * direction);
 
-            d3.event.preventDefault();
-            direction = (this.id === 'zoom_in') ? 1 : -1;
-            target_zoom = view.k * (1 + factor * direction);
+                translate0 = [(center[0] - view.x) / view.k, (center[1] - view.y) / view.k];
+                view.k = target_zoom;
+                l = [translate0[0] * view.k + view.x, translate0[1] * view.k + view.y];
 
-            // if (target_zoom < extent[0] || target_zoom > extent[1]) {
-            //     return false;
-            // }
+                view.x += center[0] - l[0];
+                view.y += center[1] - l[1];
 
-            translate0 = [(center[0] - view.x) / view.k, (center[1] - view.y) / view.k];
-            view.k = target_zoom;
-            l = [translate0[0] * view.k + view.x, translate0[1] * view.k + view.y];
+                transformArray1 = view;
 
-            view.x += center[0] - l[0];
-            view.y += center[1] - l[1];
+                g1.attr("transform", "translate(" + transformArray1.x + "," + transformArray1.y + ")scale(" + transformArray1.k + ")");
+                return;
+            }
 
-            transformArray = view;
-            g.attr("transform", transformArray);
-            // interpolateZoominterpolateZoom([view.x, view.y], view.k);
+            if (form.visualization[1].checked) {
+                var clicked = d3.event.target,
+                    factor = 0.189207,
+                    center = [width / 2, height / 2],
+                    translate0 = [],
+                    l = [],
+                    view = transformArray2;
+
+                d3.event.preventDefault();
+                direction = (this.id === 'zoom_in') ? 1 : -1;
+                target_zoom = view.k * (1 + factor * direction);
+
+                translate0 = [(center[0] - view.x) / view.k, (center[1] - view.y) / view.k];
+                view.k = target_zoom;
+                l = [translate0[0] * view.k + view.x, translate0[1] * view.k + view.y];
+
+                view.x += center[0] - l[0];
+                view.y += center[1] - l[1];
+
+                transformArray2 = view;
+
+                g2.attr("transform", "translate(" + transformArray2.x + "," + transformArray2.y + ")scale(" + transformArray2.k + ")");
+                return;
+            }
+
+            if (form.visualization[2].checked) {
+                var clicked = d3.event.target,
+                    factor = 0.189207,
+                    center = [width / 2, height / 2],
+                    translate0 = [],
+                    l = [],
+                    view = transformArray3;
+
+                d3.event.preventDefault();
+                direction = (this.id === 'zoom_in') ? 1 : -1;
+                target_zoom = view.k * (1 + factor * direction);
+
+                translate0 = [(center[0] - view.x) / view.k, (center[1] - view.y) / view.k];
+                view.k = target_zoom;
+                l = [translate0[0] * view.k + view.x, translate0[1] * view.k + view.y];
+
+                view.x += center[0] - l[0];
+                view.y += center[1] - l[1];
+
+                transformArray3 = view;
+
+                g3.attr("transform", "translate(" + transformArray3.x + "," + transformArray3.y + ")scale(" + transformArray3.k + ")");
+                return;
+            }
         }
 
         d3.selectAll('button').on('click', zoomClick);
