@@ -115,9 +115,9 @@
 <body>
 <div class="content">
     <input type="file" name="filename" id="filename">
-    <button id="upload">upload</button>
-    <button id="zoom_in">+</button>
-    <button id="zoom_out">-</button>
+    <button id="upload">Upload</button>
+    <button id="zoom_in" class="zoombutton">+</button>
+    <button id="zoom_out" class="zoombutton">-</button>
 </div>
 <div class="content">
     <form name="form" action="" method="">
@@ -125,8 +125,13 @@
         <input type="radio" class="radioclass1" name="visualization" value="Bar Graph">Bar Graph<br>
         <input type="radio" class="radioclass1" name="visualization" value="Force-Directed Graph">Force-Directed Graph<br>
     </form>
-</div>
+    <form name="settings" action="" method="">
+        <input type="text" onkeyup="value=value.replace(/[^\d\.]/g,'')" name="minimum" value="0">Minimum<br>
+        <input type="text" onkeyup="value=value.replace(/[^\d\.]/g,'')" name="maximum" value="1">Maximum<br>
 
+    </form>
+    <button id="update" class="radioclass1">Update the Graph</button>
+</div>
 
 <div class="csv"></div>
 <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc=" crossorigin="anonymous"></script>
