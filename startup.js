@@ -1,6 +1,4 @@
 $(document).ready(function () {
-
-
     var margin = {top: 100, right: 50, bottom: 50, left: 100},
         dim = Math.min(parseInt(d3.select("#chart").style("width")), parseInt(d3.select("#chart").style("height"))),
         width = dim - margin.left - margin.right,
@@ -25,10 +23,9 @@ $(document).ready(function () {
     var zoom;
 
     $('#upload').click(function () {
-        //var zoom = d3.zoom().on("zoom", zoomed);
         reset();
 
-        // Read csv file and create url for d3.csv
+        // read csv file and create url for d3.csv
         var csv = $('#filename');
         var csvFile = csv[0].files[0];
         var ext = csv.val().split(".").pop().toLowerCase();
@@ -38,7 +35,7 @@ $(document).ready(function () {
         }
         var url = URL.createObjectURL(csvFile);
 
-        // Modify the data set and calculate the correlation matrix
+        // modify the data set and calculate the correlation matrix
         d3.csv(url, function (error, csvdata) {
             csvdata = (typeof csvdata === "string") ? csv.parse(csvdata) : csvdata;
             cols = Object.keys(csvdata[0]);
@@ -91,11 +88,7 @@ $(document).ready(function () {
 
     // Select visualization method
     d3.selectAll(".radioclass1")
-        .on("click", function () {
-            // Remove current visualization
-            $("svg").empty();
-            update();
-        });
+        .on("click", update);
 
     // Reset the data sources
     function reset() {
@@ -460,7 +453,7 @@ $(document).ready(function () {
 
     // Update the graph after user settings
     function update() {
-        // Remove current visualization
+        // remove current visualization
         $("svg").empty();
 
         var start = 0;
@@ -484,26 +477,36 @@ $(document).ready(function () {
 
         //TODO Modify window size
 
-        var links_to_draw = links;
+        var links_to_draw = [];
         var fdglinks_to_draw = fdgLinks;
 
         // Modify minimal and maximal value
-        links_to_draw.forEach(function (l) {
-            var temp = l;
+        links.forEach(function (l) {
+            var temp = [];
+            temp.source = l.source;
+            temp.target = l.target;
             if (l.value < min) {
                 temp.value = 0;
             } else if (l.value > max) {
                 temp.value = 0;
+            } else {
+                temp.value = l.value;
             }
+            links_to_draw.push(temp);
         });
 
         fdglinks_to_draw.forEach(function (l) {
-            var temp = l;
+            var temp = [];
+            temp.source = l.source;
+            temp.target = l.target;
             if (l.value < min) {
                 temp.value = 0;
             } else if (l.value > max) {
                 temp.value = 0;
+            } else {
+                temp.value = l.value;
             }
+            fdglinks_to_draw.push(temp);
         });
 
         // Select visualization method
@@ -520,6 +523,8 @@ $(document).ready(function () {
             return;
         }
     }
+
+    //d3.selectAll(".settings").on('click', update);
 
     /*
             function resize() {
