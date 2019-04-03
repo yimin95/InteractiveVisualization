@@ -21,6 +21,7 @@ $(document).ready(function () {
     var g2;
     var g3;
     var zoom;
+    var dataUpdated = false;
 
     $('#upload').click(function () {
         reset();
@@ -88,7 +89,25 @@ $(document).ready(function () {
 
     // Select visualization method
     d3.selectAll(".radioclass1")
-        .on("click", update);
+        .on("click", function () {
+            if (dataUpdated) {
+                // Select visualization method
+                if (form.visualization[0].checked) {
+                    heatmap(categories, links_to_draw);
+                    return;
+                }
+                if (form.visualization[1].checked) {
+                    bar(links_to_draw);
+                    return;
+                }
+                if (form.visualization[2].checked) {
+                    forceDirectedGraph(fdgNodes, fdglinks_to_draw);
+                    return;
+                }
+            } else {
+                update();
+            }
+        });
 
     // Reset the data sources
     function reset() {
@@ -475,39 +494,39 @@ $(document).ready(function () {
         var min = settings.minimum.value;
         var max = settings.maximum.value;
 
-        //TODO Modify window size
-
         var links_to_draw = [];
         var fdglinks_to_draw = fdgLinks;
 
         // Modify minimal and maximal value
         links.forEach(function (l) {
-            var temp = [];
-            temp.source = l.source;
-            temp.target = l.target;
+            var temp1 = [];
+            temp1.source = l.source;
+            temp1.target = l.target;
             if (l.value < min) {
-                temp.value = 0;
+                temp1.value = 0;
             } else if (l.value > max) {
-                temp.value = 0;
+                temp1.value = 0;
             } else {
-                temp.value = l.value;
+                temp1.value = l.value;
             }
-            links_to_draw.push(temp);
+            links_to_draw.push(temp1);
         });
 
         fdglinks_to_draw.forEach(function (l) {
-            var temp = [];
-            temp.source = l.source;
-            temp.target = l.target;
+            var temp2 = [];
+            temp2.source = l.source;
+            temp2.target = l.target;
             if (l.value < min) {
-                temp.value = 0;
+                temp2.value = 0;
             } else if (l.value > max) {
-                temp.value = 0;
+                temp2.value = 0;
             } else {
-                temp.value = l.value;
+                temp2.value = l.value;
             }
-            fdglinks_to_draw.push(temp);
+            fdglinks_to_draw.push(temp2);
         });
+
+        dataUpdated = true;
 
         // Select visualization method
         if (form.visualization[0].checked) {
@@ -524,7 +543,6 @@ $(document).ready(function () {
         }
     }
 
-    //d3.selectAll(".settings").on('click', update);
 
     /*
             function resize() {
