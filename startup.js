@@ -15,16 +15,60 @@ $(document).ready(function () {
     var fdgNodes = [];
     var fdgLinks = [];
     var categories = 1;
+    var links_to_draw = [];
+    var fdglinks_to_draw = [];
 
     var svg;
     var g1;
     var g2;
     var g3;
     var zoom;
-    var dataUpdated = false;
+    var modified = false;
+    var firstUpload = false;
+
+
+    var rangeslider = document.getElementById("sliderRange");
+    var output = document.getElementById("currentPoint");
+    var style = document.querySelector('[data="test"]');
+    var min = document.getElementById("minimum");
+    var max = document.getElementById("maximum");
+    var windowSize = document.getElementById("windowSize");
+    var stepSize = document.getElementById("stepSize");
+
+    // CurrentPoint update after sliding
+    rangeslider.oninput = function () {
+        output.value = this.value;
+    };
+
+    // Slider update after changing currentPoint
+    output.oninput = function () {
+        rangeslider.value = this.value;
+    };
+
+    setData(windowSize.value);
+
+    function setData(x) {
+        output.innerHTML = x;
+        style.innerHTML = ".myslider::-webkit-slider-thumb { width: " + x + "% !important;}";
+    }
+
+    // Modify user settings
+    min.onchange = function () {
+        modified = true;
+    };
+    max.onchange = function () {
+        modified = true;
+    };
+    windowSize.onchange = function () {
+        modified = true;
+    };
+    stepSize.onchange = function () {
+        modified = true;
+    };
 
     $('#upload').click(function () {
         reset();
+        firstUpload = true;
 
         // read csv file and create url for d3.csv
         var csv = $('#filename');
@@ -90,7 +134,54 @@ $(document).ready(function () {
     // Select visualization method
     d3.selectAll(".radioclass1")
         .on("click", function () {
-            if (dataUpdated) {
+            if (firstUpload) {
+                // remove current visualization
+                $("svg").empty();
+
+                // Select visualization method
+                if (form.visualization[0].checked) {
+                    heatmap(categories, links);
+                    return;
+                }
+                if (form.visualization[1].checked) {
+                    bar(links);
+                    return;
+                }
+                if (form.visualization[2].checked) {
+                    forceDirectedGraph(fdgNodes, fdgLinks);
+                    return;
+                }
+            } else {
+                // Select visualization method
+                if (form.visualization[0].checked) {
+                    // remove current visualization
+                    $("svg").empty();
+                    heatmap(categories, links_to_draw);
+                    return;
+                }
+                if (form.visualization[1].checked) {
+                    // remove current visualization
+                    $("svg").empty();
+                    bar(links_to_draw);
+                    return;
+                }
+                if (form.visualization[2].checked) {
+                    // remove current visualization
+                    $("svg").empty();
+                    forceDirectedGraph(fdgNodes, fdglinks_to_draw);
+                    return;
+                }
+            }
+
+        });
+
+    d3.selectAll(".updateclass")
+        .on("click", function () {
+            // no changes of user settings
+            if (!modified) {
+                // remove current visualization
+                $("svg").empty();
+
                 // Select visualization method
                 if (form.visualization[0].checked) {
                     heatmap(categories, links_to_draw);
@@ -105,6 +196,7 @@ $(document).ready(function () {
                     return;
                 }
             } else {
+                firstUpload = false;
                 update();
             }
         });
@@ -388,8 +480,7 @@ $(document).ready(function () {
                         'stroke-width': function (link) {
                             if (link.source.name === node.name || link.target.name === node.name) {
                                 return '4';
-                            }
-                            else {
+                            } else {
                                 return '2';
                             }
                         }
@@ -427,8 +518,7 @@ $(document).ready(function () {
                     rx = bbox.x + bbox.width / 2;
                     ry = bbox.y + bbox.height / 2;
                     return 'rotate(180 ' + rx + ' ' + ry + ')';
-                }
-                else {
+                } else {
                     return 'rotate(0)';
                 }
             });
@@ -472,61 +562,72 @@ $(document).ready(function () {
 
     // Update the graph after user settings
     function update() {
-        // remove current visualization
-        $("svg").empty();
-
-        var start = 0;
-        var size = links.length;
-
-        // check Minimum and Maximum
-        if (settings.minimum.value < 0) {
+        // check values of user settings
+        if (min.value < 0) {
             alert("Minimum cannot be smaller than 0!");
             return;
         }
-        if (settings.maximum.value > 1) {
+        if (max.value > 1) {
             alert("Maximum cannot be bigger than 1!");
             return;
         }
-        if (settings.minimum.value > settings.maximum.value) {
+        if (min.value > max.value) {
             alert("Minimum cannot be bigger than Maximum!");
             return;
         }
-        var min = settings.minimum.value;
-        var max = settings.maximum.value;
+        // TODO Whole window size
+        if (windowSize.value > 100) {
+            alert("Window size cannot be bigger than the whole window!");
+            return;
+        }
+        if (stepSize.value > 100) {
+            alert("Step size cannot be bigger than the whole window!");
+            return;
+        }
 
-        var links_to_draw = [];
-        var fdglinks_to_draw = fdgLinks;
+        // remove current visualization
+        $("svg").empty();
+        while (links_to_draw.length) {
+            links_to_draw.pop();
+        }
+        while (fdglinks_to_draw.length) {
+            fdglinks_to_draw.pop();
+        }
 
         // Modify minimal and maximal value
         links.forEach(function (l) {
             var temp1 = [];
             temp1.source = l.source;
             temp1.target = l.target;
-            if (l.value < min) {
+            if (l.value < min.value) {
                 temp1.value = 0;
-            } else if (l.value > max) {
+            } else if (l.value > max.value) {
                 temp1.value = 0;
             } else {
                 temp1.value = l.value;
             }
+
             links_to_draw.push(temp1);
         });
 
-        fdglinks_to_draw.forEach(function (l) {
+        fdgLinks.forEach(function (l) {
             var temp2 = [];
             temp2.source = l.source;
             temp2.target = l.target;
-            if (l.value < min) {
-                temp2.value = 0;
-            } else if (l.value > max) {
-                temp2.value = 0;
+            if (l.value < min.value) {
+                return;
+            } else if (l.value > max.value) {
+                return;
             } else {
                 temp2.value = l.value;
             }
             fdglinks_to_draw.push(temp2);
         });
 
-        dataUpdated = true;
+        setData(windowSize.value);
+        rangeslider.step = stepSize.value;
+
+        modified = false;
 
         // Select visualization method
         if (form.visualization[0].checked) {
@@ -542,7 +643,6 @@ $(document).ready(function () {
             return;
         }
     }
-
 
     /*
             function resize() {

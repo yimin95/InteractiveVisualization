@@ -102,43 +102,31 @@
         position: absolute;
     }
 
-    .slidecontainer {
-        width: 80%; /* Width of the outside container */
+    .rangeslider{
+        width: 80%;
     }
 
     /* The slider itself */
-    .slider {
-        -webkit-appearance: none;  /* Override default CSS styles */
-        appearance: none;
-        width: 80%; /* Full-width */
-        height: 25px; /* Specified height */
-        background: #d3d3d3; /* Grey background */
-        outline: none; /* Remove outline */
-        opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-        -webkit-transition: .2s; /* 0.2 seconds transition on hover */
-        transition: opacity .2s;
+    .myslider {
+        -webkit-appearance: none;
+        background: #FCF3CF  ;
+        width: 80%;
+        height: 20px;
+        opacity: 2;
     }
 
-    /* Mouse-over effects */
-    .slider:hover {
-        opacity: 1; /* Fully shown on mouse-over */
+
+    .myslider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        cursor: pointer;
+        background: #34495E  ;
+        width: 20%;
+        height: 20px;
     }
 
-    /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
-    .slider::-webkit-slider-thumb {
-        -webkit-appearance: none; /* Override default look */
-        appearance: none;
-        width: 25px; /* Set a specific slider handle width */
-        height: 25px; /* Slider handle height */
-        background: #4CAF50; /* Green background */
-        cursor: pointer; /* Cursor on hover */
-    }
 
-    .slider::-moz-range-thumb {
-        width: 25px; /* Set a specific slider handle width */
-        height: 25px; /* Slider handle height */
-        background: #4CAF50; /* Green background */
-        cursor: pointer; /* Cursor on hover */
+    .myslider:hover {
+        opacity: 1;
     }
 
 </style>
@@ -163,23 +151,27 @@
         <input type="radio" class="radioclass1" name="visualization" value="Force-Directed Graph">Force-Directed Graph<br>
     </form>
     <form name="settings" action="" method="">
-        <br>Minimum  <input type="text" onkeyup="value=value.replace(/[^\d\.]/g,'')" name="minimum" value="0"></br>
-        <br>Maximum  <input type="text" onkeyup="value=value.replace(/[^\d\.]/g,'')" name="maximum" value="1"></br>
+        <br>Minimum: <input type="text" onkeyup="value=value.replace(/[^\d\.]/g,'')" id="minimum" value="0"></br>
+        <br>Maximum: <input type="text" onkeyup="value=value.replace(/[^\d\.]/g,'')" id="maximum" value="1"></br>
+        <br>Window Size: <input type="text" onkeyup="value=value.replace(/[^\d]/g,'')" id="windowSize" value="1"/></br>
+        <br>Step Size: <input type="text" onkeyup="value=value.replace(/[^\d]/g,'')" id="stepSize" value="1"/></br>
     </form>
-    <button id="update" class="radioclass1">Update the Graph</button>
+    <button id="update" class="updateclass">Update the Graph</button>
 </div>
 
-    <div class="stream">
-        <br>Currentpoint  <input type="text" onkeyup="value=value.replace(/[^\d\.]/g,'')" name="currentPoint" value="1"/></br>
-        <br>Stepsize  <input type="text" onkeyup="value=value.replace(/[^\d\.]/g,'')" name="stepsize" value="3"/></br>
+    <div class="rangeslider">
+        <style data="test" type="text/css">
+        </style>
+        <p>
+            <input type="range" min="1" max="100" value=1 class="myslider" id="sliderRange">
+        </p>
+        <p>
+            Current Point: <input type="text" onkeyup="value=value.replace(/[^\d]/g,'')" value="1" id="currentPoint">
+        </p>
+
     </div>
-    <div class="slidecontainer">
-        <input type="range" min="1" max="100" value=1 class="slider" id="myRange">
-    </div>
 
 
-
-<div class="csv"></div>
 <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc=" crossorigin="anonymous"></script>
 <script src='startup.js'></script>
 
