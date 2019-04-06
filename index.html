@@ -5,48 +5,59 @@
         stroke: #999;
         stroke-opacity: 0.6;
     }
+
     .nodes circle {
         stroke: #fff;
         stroke-width: 1.5px;
     }
+
     text {
         font: 25px sans-serif;
         pointer-events: none;
         text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
     }
+
     .overlay {
         fill: none;
         pointer-events: all;
     }
+
     body {
         margin: 0 auto;
         display: table;
         font-family: "Helvetica Neue", sans-serif;
     }
+
     rect.selected {
         stroke: #000;
         stroke-width: 2px;
     }
+
     .axis .domain {
         display: none;
     }
+
     .axis .tick text.selected {
         font-weight: bold;
         font-size: 1.2em;
         fill: #47ff63;
     }
+
     .axis .tick line.selected {
         stroke: #47ff63;
     }
+
     .tip {
         position: absolute;
         font-size: .8em;
         text-align: center;
         text-shadow: -1px -1px 1px #ffffff, -1px 0px 1px #ffffff, -1px 1px 1px #ffffff, 0px -1px 1px #ffffff, 0px 1px 1px #ffffff, 1px -1px 1px #ffffff, 1px 0px 1px #ffffff, 1px 1px 1px #ffffff;
     }
+
     #legend {
         margin-bottom: 10px;
     }
+
     #legend text {
         font-size: .8em;
     }
@@ -102,14 +113,14 @@
         position: absolute;
     }
 
-    .rangeslider{
+    .rangeslider {
         width: 80%;
     }
 
     /* The slider itself */
     .myslider {
         -webkit-appearance: none;
-        background: #FCF3CF  ;
+        background: #FCF3CF;
         width: 80%;
         height: 20px;
         opacity: 2;
@@ -119,7 +130,7 @@
     .myslider::-webkit-slider-thumb {
         -webkit-appearance: none;
         cursor: pointer;
-        background: #34495E  ;
+        background: #34495E;
         width: 20%;
         height: 20px;
     }
@@ -148,7 +159,8 @@
     <form name="form" action="" method="">
         <input type="radio" class="radioclass1" name="visualization" value="Heatmap">Heatmap<br>
         <input type="radio" class="radioclass1" name="visualization" value="Bar Graph">Bar Graph<br>
-        <input type="radio" class="radioclass1" name="visualization" value="Force-Directed Graph">Force-Directed Graph<br>
+        <input type="radio" class="radioclass1" name="visualization" value="Force-Directed Graph">Force-Directed
+        Graph<br>
     </form>
     <form name="settings" action="" method="">
         <br>Minimum: <input type="text" onkeyup="value=value.replace(/[^\d\.]/g,'')" id="minimum" value="0"></br>
@@ -159,20 +171,21 @@
     <button id="update" class="updateclass">Update the Graph</button>
 </div>
 
-    <div class="rangeslider">
-        <style data="test" type="text/css">
-        </style>
-        <p>
-            <input type="range" min="1" max="100" value=1 class="myslider" id="sliderRange">
-        </p>
-        <p>
-            Current Point: <input type="text" onkeyup="value=value.replace(/[^\d]/g,'')" value="1" id="currentPoint">
-        </p>
+<div class="rangeslider">
+    <style data="test" type="text/css">
+    </style>
+    <p>
+        <input type="range" min="1" max="100" value=1 class="myslider" id="sliderRange">
+    </p>
+    <p>
+        Current Point: <input type="text" onkeyup="value=value.replace(/[^\d]/g,'')" value="1" id="currentPoint">
+    </p>
 
-    </div>
+</div>
 
 
-<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"
+        integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc=" crossorigin="anonymous"></script>
 <script src='startup.js'></script>
 
 <svg id="chart"></svg>
