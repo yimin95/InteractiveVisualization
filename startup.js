@@ -15,6 +15,8 @@ $(document).ready(function () {
     var fdgNodes = [];
     var fdgLinks = [];
     var categories = 1;
+    var maxWindow = 0;
+
     var links_to_draw = [];
     var fdglinks_to_draw = [];
 
@@ -85,8 +87,9 @@ $(document).ready(function () {
             csvdata = (typeof csvdata === "string") ? csv.parse(csvdata) : csvdata;
             cols = Object.keys(csvdata[0]);
             categories = cols.length;
+            maxWindow = csvdata.length;
 
-            for (var i = 0; i < cols.length; i++) {
+            for (var i = 0; i < maxWindow; i++) {
                 // get each column as key value pair
                 var elements = csvdata[i];  //{key1: "12490", key2: "341235", key3: "652405", key4: "83.9"}
                 var obj = {index: i};
@@ -209,6 +212,7 @@ $(document).ready(function () {
         links = [];
         fdgLinks = [];
         categories = 1;
+        maxWindow = 0;
         $("svg").empty();
     }
 
@@ -531,6 +535,8 @@ $(document).ready(function () {
     }
 
     // TODO Calculate the correlations after filtering
+
+
     function calculateCorrelation(startpoint, sizepoint) {
         var corr = jz.arr.correlationMatrix(data.slice(startpoint, sizepoint), cols);    //{column_x: String1, column_y: String2, correlation: Number}
 
@@ -562,6 +568,8 @@ $(document).ready(function () {
 
     // Update the graph after user settings
     function update() {
+        console.log(data);
+        console.log(cols);
         // check values of user settings
         if (min.value < 0) {
             alert("Minimum cannot be smaller than 0!");
@@ -575,12 +583,11 @@ $(document).ready(function () {
             alert("Minimum cannot be bigger than Maximum!");
             return;
         }
-        // TODO Whole window size
-        if (windowSize.value > 100) {
+        if (windowSize.value > maxWindow) {
             alert("Window size cannot be bigger than the whole window!");
             return;
         }
-        if (stepSize.value > 100) {
+        if (stepSize.value > maxWindow) {
             alert("Step size cannot be bigger than the whole window!");
             return;
         }
