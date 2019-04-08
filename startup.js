@@ -15,10 +15,12 @@ $(document).ready(function () {
     var fdgNodes = [];
     var fdgLinks = [];
     var categories = 1;
-    var maxWindow = 0;
+    var maxWindow = 1;
 
     var links_to_draw = [];
     var fdglinks_to_draw = [];
+
+    var finalResult = [];
 
     var svg;
     var g1;
@@ -26,7 +28,7 @@ $(document).ready(function () {
     var g3;
     var zoom;
     var modified = false;
-    var firstUpload = false;
+    var firstUpload = true;
 
 
     var rangeslider = document.getElementById("sliderRange");
@@ -40,18 +42,87 @@ $(document).ready(function () {
     // CurrentPoint update after sliding
     rangeslider.oninput = function () {
         output.value = this.value;
+        if (!firstUpload) {
+            links_to_draw = finalResult[output.value - 1][0];
+            fdglinks_to_draw = finalResult[output.value - 1][1];
+            // Select visualization method
+            if (form.visualization[0].checked) {
+                // remove current visualization
+                $("svg").empty();
+                heatmap(categories, links_to_draw);
+                return;
+            }
+            if (form.visualization[1].checked) {
+                // remove current visualization
+                $("svg").empty();
+                bar(links_to_draw);
+                return;
+            }
+            if (form.visualization[2].checked) {
+                // remove current visualization
+                $("svg").empty();
+                forceDirectedGraph(fdgNodes, fdglinks_to_draw);
+                return;
+            }
+        }
     };
 
     // Slider update after changing currentPoint
     output.oninput = function () {
         rangeslider.value = this.value;
+        if (!firstUpload) {
+            links_to_draw = finalResult[output.value - 1][0];
+            fdglinks_to_draw = finalResult[output.value - 1][1];
+            // Select visualization method
+            if (form.visualization[0].checked) {
+                // remove current visualization
+                $("svg").empty();
+                heatmap(categories, links_to_draw);
+                return;
+            }
+            if (form.visualization[1].checked) {
+                // remove current visualization
+                $("svg").empty();
+                bar(links_to_draw);
+                return;
+            }
+            if (form.visualization[2].checked) {
+                // remove current visualization
+                $("svg").empty();
+                forceDirectedGraph(fdgNodes, fdglinks_to_draw);
+                return;
+            }
+        }
     };
 
-    setData(windowSize.value);
+    setData(maxWindow);
 
     function setData(x) {
         output.innerHTML = x;
         style.innerHTML = ".myslider::-webkit-slider-thumb { width: " + x + "% !important;}";
+        if (!firstUpload) {
+            links_to_draw = finalResult[output.value - 1][0];
+            fdglinks_to_draw = finalResult[output.value - 1][1];
+            // Select visualization method
+            if (form.visualization[0].checked) {
+                // remove current visualization
+                $("svg").empty();
+                heatmap(categories, links_to_draw);
+                return;
+            }
+            if (form.visualization[1].checked) {
+                // remove current visualization
+                $("svg").empty();
+                bar(links_to_draw);
+                return;
+            }
+            if (form.visualization[2].checked) {
+                // remove current visualization
+                $("svg").empty();
+                forceDirectedGraph(fdgNodes, fdglinks_to_draw);
+                return;
+            }
+        }
     }
 
     // Modify user settings
@@ -67,10 +138,15 @@ $(document).ready(function () {
     stepSize.onchange = function () {
         modified = true;
     };
+    output.onchange = function () {
+        if (output.value > maxWindow) {
+            alert("The maximum window size is " + maxWindow + "!");
+        }
+        modified = true;
+    };
 
     $('#upload').click(function () {
         reset();
-        firstUpload = true;
 
         // read csv file and create url for d3.csv
         var csv = $('#filename');
@@ -88,6 +164,10 @@ $(document).ready(function () {
             cols = Object.keys(csvdata[0]);
             categories = cols.length;
             maxWindow = csvdata.length;
+            rangeslider.max = maxWindow;
+            windowSize.value = maxWindow;
+            stepSize.value = maxWindow;
+            setData(maxWindow);
 
             for (var i = 0; i < maxWindow; i++) {
                 // get each column as key value pair
@@ -131,6 +211,8 @@ $(document).ready(function () {
                 link2.value = isNaN(ele.correlation) ? 0 : Math.abs(ele.correlation);
                 fdgLinks.push(link2);
             });
+
+            update();
         });
     });
 
@@ -140,6 +222,8 @@ $(document).ready(function () {
             if (firstUpload) {
                 // remove current visualization
                 $("svg").empty();
+
+                firstUpload = false;
 
                 // Select visualization method
                 if (form.visualization[0].checked) {
@@ -213,6 +297,8 @@ $(document).ready(function () {
         fdgLinks = [];
         categories = 1;
         maxWindow = 0;
+        modified = false;
+        firstUpload = true;
         $("svg").empty();
     }
 
@@ -534,18 +620,24 @@ $(document).ready(function () {
         }
     }
 
-    // TODO Calculate the correlations after filtering
+    function calculateCorrelation(start, range) {
+        var corr = start + range > maxWindow ? jz.arr.correlationMatrix(data.slice(start, maxWindow - 1), cols) : jz.arr.correlationMatrix(data.slice(start, start + range), cols);    //{column_x: String1, column_y: String2, correlation: Number}
 
-
-    function calculateCorrelation(startpoint, sizepoint) {
-        var corr = jz.arr.correlationMatrix(data.slice(startpoint, sizepoint), cols);    //{column_x: String1, column_y: String2, correlation: Number}
+        var arrayLinks = [];
+        var arrayFdgLinks = [];
 
         corr.forEach(function (ele) {
+            // Modify minimal and maximal value
             var link1 = [];
             link1.source = ele.column_x;
             link1.target = ele.column_y;
             link1.value = isNaN(ele.correlation) ? 0 : Math.abs(ele.correlation);
-            links.push(link1);   //{source: String1, target: String2, value: Number}
+            if (link1.value < min.value) {
+                link1.value = 0;
+            } else if (link1.value > max.value) {
+                link1.value = 0;
+            }
+            arrayLinks.push(link1);   //{source: String1, target: String2, value: Number}
 
             // link data of Force-Directed-Graph
             var link2 = [];
@@ -562,14 +654,34 @@ $(document).ready(function () {
                 }
             }
             link2.value = isNaN(ele.correlation) ? 0 : Math.abs(ele.correlation);
-            fdgLinks.push(link2);
+            if (link2.value < min.value) {
+                return;
+            } else if (link2.value > max.value) {
+                return;
+            }
+            arrayFdgLinks.push(link2);
         });
+
+
+
+        return [arrayLinks, arrayFdgLinks];
+    }
+
+    // calculate the correlations based on different startpoint in parallel
+    async function parallelcalculation() {
+        var jobs = [];
+        for (var i = 0; i < maxWindow; i++) {
+            jobs.push(i);
+        }
+        let results = jobs.map(async (job) => await calculateCorrelation(job,stepSize.value));
+
+        for (const result of results) {
+            finalResult.push(await result);
+        }
     }
 
     // Update the graph after user settings
     function update() {
-        console.log(data);
-        console.log(cols);
         // check values of user settings
         if (min.value < 0) {
             alert("Minimum cannot be smaller than 0!");
@@ -592,99 +704,34 @@ $(document).ready(function () {
             return;
         }
 
+        finalResult.forEach(function () {
+            finalResult.pop();
+        });
+
+        parallelcalculation();
+
         // remove current visualization
         $("svg").empty();
-        while (links_to_draw.length) {
-            links_to_draw.pop();
-        }
-        while (fdglinks_to_draw.length) {
-            fdglinks_to_draw.pop();
-        }
 
-        // Modify minimal and maximal value
-        links.forEach(function (l) {
-            var temp1 = [];
-            temp1.source = l.source;
-            temp1.target = l.target;
-            if (l.value < min.value) {
-                temp1.value = 0;
-            } else if (l.value > max.value) {
-                temp1.value = 0;
-            } else {
-                temp1.value = l.value;
-            }
-
-            links_to_draw.push(temp1);
-        });
-
-        fdgLinks.forEach(function (l) {
-            var temp2 = [];
-            temp2.source = l.source;
-            temp2.target = l.target;
-            if (l.value < min.value) {
-                return;
-            } else if (l.value > max.value) {
-                return;
-            } else {
-                temp2.value = l.value;
-            }
-            fdglinks_to_draw.push(temp2);
-        });
-
-        setData(windowSize.value);
+        setData(output.value);
         rangeslider.step = stepSize.value;
 
         modified = false;
 
         // Select visualization method
         if (form.visualization[0].checked) {
-            heatmap(categories, links_to_draw);
+            heatmap(categories, finalResult[output.value - 1][0]);
             return;
         }
         if (form.visualization[1].checked) {
-            bar(links_to_draw);
+            bar(finalResult[output.value - 1][0]);
             return;
         }
         if (form.visualization[2].checked) {
-            forceDirectedGraph(fdgNodes, fdglinks_to_draw);
+            forceDirectedGraph(fdgNodes, finalResult[output.value - 1][1]);
             return;
         }
     }
-
-    /*
-            function resize() {
-                //var dim = Math.min(parseInt(d3.select("#chart").style("width")), parseInt(d3.select("#chart").style("height"))),
-                var dim = 600,
-                    width = dim - margin.left - margin.right,
-                    height = dim - margin.top - margin.bottom;
-                gridSize = width / categories;
-                // Update the range of the scale with new width/height
-                xScale.rangeBands([0, width]);
-                yScale.rangeBands([0, height]);
-                // Update the axis and text with the new scale
-                svg.select('.x.axis')
-                    .call(xAxis)
-                    .selectAll("text")
-                    .attr("y", -10)
-                    .attr("dy", ".5em")
-                    .attr("x", 0)
-                    .attr("transform", "rotate(-45)")
-                    .style("text-anchor", "start");
-                svg.select('.y.axis')
-                    .call(yAxis);
-                svg.selectAll('.correlation')
-                    .attr("x", function (d, i) {
-                        return gridSize * Math.floor(i / categories);
-                    })
-                    .attr("y", function (d, i) {
-                        return gridSize * (i % categories);
-                    })
-                    .attr("width", gridSize)
-                    .attr("height", gridSize);
-            }
-            d3.select(window).on('resize', resize);
-            resize();
-    */
 
     // Initialize transformArray and zoom function for each visualization method
     var transformArray1 = {k: 1, x: width / 2, y: height / 2};
