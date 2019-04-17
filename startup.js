@@ -12,12 +12,14 @@ $(document).ready(function () {
     var data = [];
     var cols = [];
     var links = [];
+    var barLinks = [];
     var fdgNodes = [];
     var fdgLinks = [];
     var categories = 1;
     var maxWindow = 1;
 
     var links_to_draw = [];
+    var barlinks_to_draw = [];
     var fdglinks_to_draw = [];
 
     var finalResult = [];
@@ -32,7 +34,7 @@ $(document).ready(function () {
 
 
     var rangeslider = document.getElementById("sliderRange");
-    var output = document.getElementById("currentPoint");
+    var current = document.getElementById("currentPoint");
     var style = document.querySelector('[data="test"]');
     var min = document.getElementById("minimum");
     var max = document.getElementById("maximum");
@@ -41,10 +43,11 @@ $(document).ready(function () {
 
     // CurrentPoint update after sliding
     rangeslider.oninput = function () {
-        output.value = this.value;
+        current.value = this.value;
         if (!firstUpload) {
-            links_to_draw = finalResult[output.value - 1][0];
-            fdglinks_to_draw = finalResult[output.value - 1][1];
+            links_to_draw = finalResult[current.value - 1][0];
+            barlinks_to_draw = finalResult[current.value - 1][1];
+            fdglinks_to_draw = finalResult[current.value - 1][2];
             // Select visualization method
             if (form.visualization[0].checked) {
                 // remove current visualization
@@ -55,7 +58,7 @@ $(document).ready(function () {
             if (form.visualization[1].checked) {
                 // remove current visualization
                 $("svg").empty();
-                bar(links_to_draw);
+                bar(barlinks_to_draw);
                 return;
             }
             if (form.visualization[2].checked) {
@@ -68,11 +71,12 @@ $(document).ready(function () {
     };
 
     // Slider update after changing currentPoint
-    output.oninput = function () {
+    current.oninput = function () {
         rangeslider.value = this.value;
         if (!firstUpload) {
-            links_to_draw = finalResult[output.value - 1][0];
-            fdglinks_to_draw = finalResult[output.value - 1][1];
+            links_to_draw = finalResult[current.value - 1][0];
+            barlinks_to_draw = finalResult[current.value - 1][1];
+            fdglinks_to_draw = finalResult[current.value - 1][2];
             // Select visualization method
             if (form.visualization[0].checked) {
                 // remove current visualization
@@ -83,7 +87,7 @@ $(document).ready(function () {
             if (form.visualization[1].checked) {
                 // remove current visualization
                 $("svg").empty();
-                bar(links_to_draw);
+                bar(barlinks_to_draw);
                 return;
             }
             if (form.visualization[2].checked) {
@@ -98,11 +102,13 @@ $(document).ready(function () {
     setData(maxWindow);
 
     function setData(x) {
-        output.innerHTML = x;
-        style.innerHTML = ".myslider::-webkit-slider-thumb { width: " + x + "% !important;}";
+        // TODO Set Timeout
+        current.innerHTML = x;
+        style.innerHTML = ".myslider::-webkit-slider-thumb { width: " + windowSize.value + "% !important;}";
         if (!firstUpload) {
-            links_to_draw = finalResult[output.value - 1][0];
-            fdglinks_to_draw = finalResult[output.value - 1][1];
+            links_to_draw = finalResult[current.value - 1][0];
+            barlinks_to_draw = finalResult[current.value - 1][1];
+            fdglinks_to_draw = finalResult[current.value - 1][2];
             // Select visualization method
             if (form.visualization[0].checked) {
                 // remove current visualization
@@ -113,7 +119,7 @@ $(document).ready(function () {
             if (form.visualization[1].checked) {
                 // remove current visualization
                 $("svg").empty();
-                bar(links_to_draw);
+                bar(barlinks_to_draw);
                 return;
             }
             if (form.visualization[2].checked) {
@@ -138,8 +144,8 @@ $(document).ready(function () {
     stepSize.onchange = function () {
         modified = true;
     };
-    output.onchange = function () {
-        if (output.value > maxWindow) {
+    current.onchange = function () {
+        if (current.value > maxWindow) {
             alert("The maximum window size is " + maxWindow + "!");
         }
         modified = true;
@@ -166,10 +172,10 @@ $(document).ready(function () {
             maxWindow = csvdata.length;
             rangeslider.max = maxWindow;
             windowSize.value = maxWindow;
-            stepSize.value = maxWindow;
+            stepSize.value = 1;
             setData(maxWindow);
 
-            for (var i = 0; i < maxWindow; i++) {
+            for (var i = 0; i < categories; i++) {
                 // get each column as key value pair
                 var elements = csvdata[i];  //{key1: "12490", key2: "341235", key3: "652405", key4: "83.9"}
                 var obj = {index: i};
@@ -187,32 +193,43 @@ $(document).ready(function () {
 
             var corr = jz.arr.correlationMatrix(data, cols);    //{column_x: String1, column_y: String2, correlation: Number}
 
+            var l = 0;
+
             corr.forEach(function (ele) {
                 var link1 = [];
                 link1.source = ele.column_x;
                 link1.target = ele.column_y;
                 link1.value = isNaN(ele.correlation) ? 0 : Math.abs(ele.correlation);
+                link1.value = d3.round(link1.value, 3);
                 links.push(link1);   //{source: String1, target: String2, value: Number}
 
-                // link data of Force-Directed-Graph
-                var link2 = [];
-                for (j = 0; j < fdgNodes.length; j++) {
-                    if (link1.source === fdgNodes[j].name) {
-                        link2.source = j;
-                        break;
-                    }
+                if (link1.source === link1.target) {
+                    l = l + categories;
                 }
-                for (j = 0; j < fdgNodes.length; j++) {
-                    if (link1.target === fdgNodes[j].name) {
-                        link2.target = j;
-                        break;
-                    }
-                }
-                link2.value = isNaN(ele.correlation) ? 0 : Math.abs(ele.correlation);
-                fdgLinks.push(link2);
-            });
+                if (l > 0) {
+                    barLinks.push(link1);
 
-            update();
+                    // link data of Force-Directed-Graph
+                    var link2 = [];
+                    for (j = 0; j < fdgNodes.length; j++) {
+                        if (link1.source === fdgNodes[j].name) {
+                            link2.source = j;
+                            break;
+                        }
+                    }
+                    for (j = 0; j < fdgNodes.length; j++) {
+                        if (link1.target === fdgNodes[j].name) {
+                            link2.target = j;
+                            break;
+                        }
+                    }
+                    link2.value = isNaN(ele.correlation) ? 0 : Math.abs(ele.correlation);
+                    link2.value = d3.round(link2.value, 3);
+                    fdgLinks.push(link2);
+                }
+                l--;
+            });
+            confirm("The max window size is " + maxWindow + " !");
         });
     });
 
@@ -223,15 +240,13 @@ $(document).ready(function () {
                 // remove current visualization
                 $("svg").empty();
 
-                firstUpload = false;
-
                 // Select visualization method
                 if (form.visualization[0].checked) {
                     heatmap(categories, links);
                     return;
                 }
                 if (form.visualization[1].checked) {
-                    bar(links);
+                    bar(barLinks);
                     return;
                 }
                 if (form.visualization[2].checked) {
@@ -249,7 +264,7 @@ $(document).ready(function () {
                 if (form.visualization[1].checked) {
                     // remove current visualization
                     $("svg").empty();
-                    bar(links_to_draw);
+                    bar(barlinks_to_draw);
                     return;
                 }
                 if (form.visualization[2].checked) {
@@ -266,6 +281,7 @@ $(document).ready(function () {
         .on("click", function () {
             // no changes of user settings
             if (!modified) {
+                if (firstUpload) return;
                 // remove current visualization
                 $("svg").empty();
 
@@ -275,7 +291,7 @@ $(document).ready(function () {
                     return;
                 }
                 if (form.visualization[1].checked) {
-                    bar(links_to_draw);
+                    bar(barlinks_to_draw);
                     return;
                 }
                 if (form.visualization[2].checked) {
@@ -294,7 +310,11 @@ $(document).ready(function () {
         cols = [];
         fdgNodes = [];
         links = [];
+        barLinks = [];
         fdgLinks = [];
+        links_to_draw = [];
+        barlinks_to_draw = [];
+        fdglinks_to_draw = [];
         categories = 1;
         maxWindow = 0;
         modified = false;
@@ -329,7 +349,7 @@ $(document).ready(function () {
             .attr('class', 'd3-tip')
             .offset([-10, 0])
             .html(function (d) {
-                var st = d.value == 0 ? "Filtered" : d3.round(d.value, 3);
+                var st = d.value > max.value || d.value < min.value ? "Filtered" : d3.round(d.value, 3);
                 return "<div><span>Relationship:</span> <span style='color:white'>" + d.source + " and " + d.target + "</span></div>" +
                     "<div><span>Correlation:</span> <span style='color:white'>" + st + "</span></div>";
             });
@@ -349,7 +369,7 @@ $(document).ready(function () {
             .attr("width", gridSize)
             .attr("height", gridSize)
             .style("fill", function (d) {
-                return d.value == 0 ? "white" : color(d.value);
+                return d.value > max.value || d.value < min.value ? "white" : color(d.value);
             })
             .on('mouseover', tip.show)
             .on('mouseout', tip.hide);
@@ -385,6 +405,37 @@ $(document).ready(function () {
             .selectAll("text")
             .style("text-anchor", "end");
 
+        var gradient = g1.append("linearGradient")
+            .attr("id", "linear-gradient");
+
+        var stops = [{offset: 0, color: color(0), value: 0}, {offset: 1, color: color(1), value: 1}];
+
+        gradient.selectAll("stop")
+            .data(stops)
+            .enter().append("stop")
+            .attr("offset", function(d){ return (100 * d.offset) + "%"; })
+            .attr("stop-color", function(d){ return d.color; });
+
+        g1.append("rect")
+            .style("fill", "url(#linear-gradient)")
+            .attr("x", 0)
+            .attr("y", width + gridSize)
+            .attr("width", width)
+            .attr("height", gridSize);
+
+        g1.append("text")
+            .attr("x", 0)
+            .attr("y", width + 3 * gridSize)
+            .style("text-anchor", "start")
+            .style("font-weight", "bold")
+            .text("0");
+
+        g1.append("text")
+            .attr("x", width)
+            .attr("y", width + 3 * gridSize)
+            .style("text-anchor", "start")
+            .style("font-weight", "bold")
+            .text("1");
     }
 
     // Create the Bar Graph
@@ -461,28 +512,30 @@ $(document).ready(function () {
             .attr('class', 'd3-tip')
             .offset([-10, 0])
             .html(function (d) {
-                var st = d.value == 0 ? "Filtered" : d3.round(d.value, 3);
+                var st = d.value > max.value || d.value < min.value ? "Filtered" : d3.round(d.value, 3);
                 return "<div><span>Relationship:</span> <span style='color:white'>" + d.source + " and " + d.target + "</span></div>" +
                     "<div><span>Correlation:</span> <span style='color:white'>" + st + "</span></div>";
             });
 
         svg.call(tip);
 
-        var barPadding = 1;
         g2.selectAll("rect")
             .data(links)
             .enter()
             .append("rect")
-            .style("fill", "steelblue")
+            .style("fill", function (d) {
+                if (d.value === 0) return "red";
+                return d.value > max.value || d.value < min.value ? "black" : "steelblue";
+            })
             .attr("x", function (d, i) {
                 return i * (width / links.length);  //Bar width of 20 plus 1 for padding
             })
             .attr("y", function (d) {
-                return yScale(d.value);
+                return d.value > max.value || d.value < min.value || d.value === 0 ? yScale(1) : yScale(d.value);
             })
-            .attr("width", width / links.length - barPadding)
+            .attr("width", width / links.length)
             .attr("height", function (d) {
-                return height - yScale(d.value);
+                return d.value > max.value || d.value < min.value || d.value === 0 ? height - yScale(1) : height - yScale(d.value);
             })
             .on('mouseover', tip.show)
             .on('mouseout', tip.hide);
@@ -509,9 +562,9 @@ $(document).ready(function () {
             .links(fdglinks)
             .size([width + margin.left + margin.right, height + margin.top + margin.bottom])
             .linkDistance(function (d) {
-                return 400 * Math.sqrt(1 - d.value * d.value);
+                return d.value > max.value || d.value < min.value ? 0 : 200 * Math.sqrt(1 - d.value * d.value);
             })
-            .charge(-1500)
+            .charge(-15000)
             .on("tick", tick)
             .start();
 
@@ -593,7 +646,7 @@ $(document).ready(function () {
             })
             .text(function (node) {
                 return node.name
-            })
+            });
 
         function tick() {
             circles.attr("transform", transform1);
@@ -621,10 +674,13 @@ $(document).ready(function () {
     }
 
     function calculateCorrelation(start, range) {
-        var corr = start + range > maxWindow ? jz.arr.correlationMatrix(data.slice(start, maxWindow - 1), cols) : jz.arr.correlationMatrix(data.slice(start, start + range), cols);    //{column_x: String1, column_y: String2, correlation: Number}
-
+        //{column_x: String1, column_y: String2, correlation: Number}
+        var corr = start + range > maxWindow ? jz.arr.correlationMatrix(data.slice(start), cols) :
+            jz.arr.correlationMatrix(data.slice(start, start + range), cols);
         var arrayLinks = [];
+        var arrayBarLinks = [];
         var arrayFdgLinks = [];
+        var l = 0;
 
         corr.forEach(function (ele) {
             // Modify minimal and maximal value
@@ -632,39 +688,37 @@ $(document).ready(function () {
             link1.source = ele.column_x;
             link1.target = ele.column_y;
             link1.value = isNaN(ele.correlation) ? 0 : Math.abs(ele.correlation);
-            if (link1.value < min.value) {
-                link1.value = 0;
-            } else if (link1.value > max.value) {
-                link1.value = 0;
-            }
+            link1.value = d3.round(link1.value, 3);
             arrayLinks.push(link1);   //{source: String1, target: String2, value: Number}
 
-            // link data of Force-Directed-Graph
-            var link2 = [];
-            for (j = 0; j < fdgNodes.length; j++) {
-                if (link1.source === fdgNodes[j].name) {
-                    link2.source = j;
-                    break;
+            if (link1.source === link1.target) {
+                l = l + categories;
+            }
+            if (l > 0) {
+                arrayBarLinks.push(link1);
+
+                // link data of Force-Directed-Graph
+                var link2 = [];
+                for (j = 0; j < fdgNodes.length; j++) {
+                    if (link1.source === fdgNodes[j].name) {
+                        link2.source = j;
+                        break;
+                    }
                 }
-            }
-            for (j = 0; j < fdgNodes.length; j++) {
-                if (link1.target === fdgNodes[j].name) {
-                    link2.target = j;
-                    break;
+                for (j = 0; j < fdgNodes.length; j++) {
+                    if (link1.target === fdgNodes[j].name) {
+                        link2.target = j;
+                        break;
+                    }
                 }
+                link2.value = isNaN(ele.correlation) ? 0 : Math.abs(ele.correlation);
+                link2.value = d3.round(link2.value, 3);
+                arrayFdgLinks.push(link2);
             }
-            link2.value = isNaN(ele.correlation) ? 0 : Math.abs(ele.correlation);
-            if (link2.value < min.value) {
-                return;
-            } else if (link2.value > max.value) {
-                return;
-            }
-            arrayFdgLinks.push(link2);
+            l--;
         });
-
-
-
-        return [arrayLinks, arrayFdgLinks];
+        //confirm(start + " !!! " + range);
+        return [arrayLinks, arrayBarLinks, arrayFdgLinks];
     }
 
     // calculate the correlations based on different startpoint in parallel
@@ -673,7 +727,7 @@ $(document).ready(function () {
         for (var i = 0; i < maxWindow; i++) {
             jobs.push(i);
         }
-        let results = jobs.map(async (job) => await calculateCorrelation(job,stepSize.value));
+        let results = jobs.map(async (job) => await calculateCorrelation(job, windowSize.value));
 
         for (const result of results) {
             finalResult.push(await result);
@@ -704,33 +758,33 @@ $(document).ready(function () {
             return;
         }
 
-        finalResult.forEach(function () {
-            finalResult.pop();
-        });
-
-        parallelcalculation();
-
-        // remove current visualization
-        $("svg").empty();
-
-        setData(output.value);
-        rangeslider.step = stepSize.value;
-
-        modified = false;
-
         // Select visualization method
         if (form.visualization[0].checked) {
-            heatmap(categories, finalResult[output.value - 1][0]);
-            return;
+            // remove current visualization
+            $("svg").empty();
+            [links_to_draw, barlinks_to_draw, fdglinks_to_draw] = calculateCorrelation(current.value - 1, windowSize.value);
+            heatmap(categories, links_to_draw);
         }
         if (form.visualization[1].checked) {
-            bar(finalResult[output.value - 1][0]);
-            return;
+            // remove current visualization
+            $("svg").empty();
+            [links_to_draw, barlinks_to_draw, fdglinks_to_draw] = calculateCorrelation(current.value - 1, windowSize.value);
+            bar(barlinks_to_draw,);
         }
         if (form.visualization[2].checked) {
-            forceDirectedGraph(fdgNodes, finalResult[output.value - 1][1]);
-            return;
+            // remove current visualization
+            $("svg").empty();
+            [links_to_draw, barlinks_to_draw, fdglinks_to_draw] = calculateCorrelation(current.value - 1, windowSize.value);
+            forceDirectedGraph(fdgNodes, fdglinks_to_draw);
         }
+
+        rangeslider.step = stepSize.value;
+        style.innerHTML = ".myslider::-webkit-slider-thumb { width: " + windowSize.value + "% !important;}";
+        modified = false;
+
+        finalResult.length = 0;
+
+        parallelcalculation();
     }
 
     // Initialize transformArray and zoom function for each visualization method
