@@ -23,6 +23,7 @@ $(document).ready(function () {
     var fdglinks_to_draw = [];
 
     var finalResult = [];
+    var finalResults = [];
 
     var svg;
     var g1;
@@ -44,71 +45,76 @@ $(document).ready(function () {
     // CurrentPoint update after sliding
     rangeslider.oninput = function () {
         current.value = this.value;
-        if (!firstUpload) {
-            links_to_draw = finalResult[current.value - 1][0];
-            barlinks_to_draw = finalResult[current.value - 1][1];
-            fdglinks_to_draw = finalResult[current.value - 1][2];
-            // Select visualization method
-            if (form.visualization[0].checked) {
-                // remove current visualization
-                $("svg").empty();
-                heatmap(categories, links_to_draw);
-                return;
+        setTimeout(function () {
+            if (!firstUpload) {
+                links_to_draw = finalResult[parseFloat(current.value) - 1][0];
+                barlinks_to_draw = finalResult[parseFloat(current.value) - 1][1];
+                fdglinks_to_draw = finalResult[parseFloat(current.value) - 1][2];
+                // Select visualization method
+                if (form.visualization[0].checked) {
+                    // remove current visualization
+                    $("svg").empty();
+                    heatmap(categories, links_to_draw);
+                    return;
+                }
+                if (form.visualization[1].checked) {
+                    // remove current visualization
+                    $("svg").empty();
+                    bar(barlinks_to_draw);
+                    return;
+                }
+                if (form.visualization[2].checked) {
+                    // remove current visualization
+                    $("svg").empty();
+                    forceDirectedGraph(fdgNodes, fdglinks_to_draw);
+                    return;
+                }
             }
-            if (form.visualization[1].checked) {
-                // remove current visualization
-                $("svg").empty();
-                bar(barlinks_to_draw);
-                return;
-            }
-            if (form.visualization[2].checked) {
-                // remove current visualization
-                $("svg").empty();
-                forceDirectedGraph(fdgNodes, fdglinks_to_draw);
-                return;
-            }
-        }
+        }, 1000)
+
     };
 
-    // Slider update after changing currentPoint
+    // Slider update after typing currentPoint
     current.oninput = function () {
+        if (this.value < 1) return;
         rangeslider.value = this.value;
-        if (!firstUpload) {
-            links_to_draw = finalResult[current.value - 1][0];
-            barlinks_to_draw = finalResult[current.value - 1][1];
-            fdglinks_to_draw = finalResult[current.value - 1][2];
-            // Select visualization method
-            if (form.visualization[0].checked) {
-                // remove current visualization
-                $("svg").empty();
-                heatmap(categories, links_to_draw);
-                return;
+        setTimeout(function () {
+            if (!firstUpload) {
+                links_to_draw = finalResult[parseFloat(current.value) - 1][0];
+                barlinks_to_draw = finalResult[parseFloat(current.value) - 1][1];
+                fdglinks_to_draw = finalResult[parseFloat(current.value) - 1][2];
+                // Select visualization method
+                if (form.visualization[0].checked) {
+                    // remove current visualization
+                    $("svg").empty();
+                    heatmap(categories, links_to_draw);
+                    return;
+                }
+                if (form.visualization[1].checked) {
+                    // remove current visualization
+                    $("svg").empty();
+                    bar(barlinks_to_draw);
+                    return;
+                }
+                if (form.visualization[2].checked) {
+                    // remove current visualization
+                    $("svg").empty();
+                    forceDirectedGraph(fdgNodes, fdglinks_to_draw);
+                    return;
+                }
             }
-            if (form.visualization[1].checked) {
-                // remove current visualization
-                $("svg").empty();
-                bar(barlinks_to_draw);
-                return;
-            }
-            if (form.visualization[2].checked) {
-                // remove current visualization
-                $("svg").empty();
-                forceDirectedGraph(fdgNodes, fdglinks_to_draw);
-                return;
-            }
-        }
+        }, 500)
     };
 
     setData(maxWindow);
 
     function setData(x) {
-        // TODO Set Timeout
         current.innerHTML = x;
-        style.innerHTML = ".myslider::-webkit-slider-thumb { width: " + windowSize.value + "% !important;}";
+        style.innerHTML = ".myslider::-webkit-slider-thumb { width: " + 100 * windowSize.value / maxWindow + "% !important;}";
         if (!firstUpload) {
-            links_to_draw = finalResult[current.value - 1][0];
-            barlinks_to_draw = finalResult[current.value - 1][1];
-            fdglinks_to_draw = finalResult[current.value - 1][2];
+            links_to_draw = finalResult[parseFloat(current.value) - 1][0];
+            barlinks_to_draw = finalResult[parseFloat(current.value) - 1][1];
+            fdglinks_to_draw = finalResult[parseFloat(current.value) - 1][2];
             // Select visualization method
             if (form.visualization[0].checked) {
                 // remove current visualization
@@ -319,6 +325,8 @@ $(document).ready(function () {
         maxWindow = 0;
         modified = false;
         firstUpload = true;
+        finalResult = [];
+        finalResults = [];
         $("svg").empty();
     }
 
@@ -413,28 +421,28 @@ $(document).ready(function () {
         gradient.selectAll("stop")
             .data(stops)
             .enter().append("stop")
-            .attr("offset", function(d){ return (100 * d.offset) + "%"; })
-            .attr("stop-color", function(d){ return d.color; });
+            .attr("offset", function (d) {
+                return (100 * d.offset) + "%";
+            })
+            .attr("stop-color", function (d) {
+                return d.color;
+            });
 
         g1.append("rect")
             .style("fill", "url(#linear-gradient)")
             .attr("x", 0)
-            .attr("y", width + gridSize)
+            .attr("y", width + 0.5 * gridSize)
             .attr("width", width)
-            .attr("height", gridSize);
+            .attr("height", 0.5 * gridSize);
 
         g1.append("text")
             .attr("x", 0)
-            .attr("y", width + 3 * gridSize)
-            .style("text-anchor", "start")
-            .style("font-weight", "bold")
+            .attr("y", width + 1.7 * gridSize)
             .text("0");
 
         g1.append("text")
             .attr("x", width)
-            .attr("y", width + 3 * gridSize)
-            .style("text-anchor", "start")
-            .style("font-weight", "bold")
+            .attr("y", width + 1.7 * gridSize)
             .text("1");
     }
 
@@ -717,21 +725,38 @@ $(document).ready(function () {
             }
             l--;
         });
-        //confirm(start + " !!! " + range);
+
+        finalResult[start] = [arrayLinks, arrayBarLinks, arrayFdgLinks];
         return [arrayLinks, arrayBarLinks, arrayFdgLinks];
     }
 
     // calculate the correlations based on different startpoint in parallel
     async function parallelcalculation() {
         var jobs = [];
+
+        var j1 = current.value;
+        var j2 = stepSize.value;
+        var j = parseFloat(j1) + parseFloat(j2);
+
+        while (j < maxWindow) {
+            jobs.push(j - 1);
+            j = j + parseFloat(stepSize.value);
+        }
+
+        var k = parseFloat(j1) - parseFloat(j2);
+        while (k > 0) {
+            jobs.push(k - 1);
+            k = k - parseFloat(stepSize.value);
+        }
+
         for (var i = 0; i < maxWindow; i++) {
             jobs.push(i);
         }
-        let results = jobs.map(async (job) => await calculateCorrelation(job, windowSize.value));
 
-        for (const result of results) {
-            finalResult.push(await result);
-        }
+        let results = jobs.map(async (job) => await calculateCorrelation(job, windowSize.value));
+/*        for (const result of results) {
+            finalResults.push(await result);
+        }*/
     }
 
     // Update the graph after user settings
@@ -762,24 +787,24 @@ $(document).ready(function () {
         if (form.visualization[0].checked) {
             // remove current visualization
             $("svg").empty();
-            [links_to_draw, barlinks_to_draw, fdglinks_to_draw] = calculateCorrelation(current.value - 1, windowSize.value);
+            [links_to_draw, barlinks_to_draw, fdglinks_to_draw] = calculateCorrelation(parseFloat(current.value) - 1, windowSize.value);
             heatmap(categories, links_to_draw);
         }
         if (form.visualization[1].checked) {
             // remove current visualization
             $("svg").empty();
-            [links_to_draw, barlinks_to_draw, fdglinks_to_draw] = calculateCorrelation(current.value - 1, windowSize.value);
+            [links_to_draw, barlinks_to_draw, fdglinks_to_draw] = calculateCorrelation(parseFloat(current.value) - 1, windowSize.value);
             bar(barlinks_to_draw,);
         }
         if (form.visualization[2].checked) {
             // remove current visualization
             $("svg").empty();
-            [links_to_draw, barlinks_to_draw, fdglinks_to_draw] = calculateCorrelation(current.value - 1, windowSize.value);
+            [links_to_draw, barlinks_to_draw, fdglinks_to_draw] = calculateCorrelation(parseFloat(current.value) - 1, windowSize.value);
             forceDirectedGraph(fdgNodes, fdglinks_to_draw);
         }
 
         rangeslider.step = stepSize.value;
-        style.innerHTML = ".myslider::-webkit-slider-thumb { width: " + windowSize.value + "% !important;}";
+        style.innerHTML = ".myslider::-webkit-slider-thumb { width: " + 100 * windowSize.value / maxWindow + "% !important;}";
         modified = false;
 
         finalResult.length = 0;
