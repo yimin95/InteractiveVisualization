@@ -112,9 +112,9 @@ $(document).ready(function () {
         current.innerHTML = x;
         style.innerHTML = ".myslider::-webkit-slider-thumb { width: " + 100 * windowSize.value / maxWindow + "% !important;}";
         if (!firstUpload) {
-            links_to_draw = finalResult[parseFloat(current.value) - 1][0];
-            barlinks_to_draw = finalResult[parseFloat(current.value) - 1][1];
-            fdglinks_to_draw = finalResult[parseFloat(current.value) - 1][2];
+            links_to_draw = finalResult[current.value - 1][0];
+            barlinks_to_draw = finalResult[current.value - 1][1];
+            fdglinks_to_draw = finalResult[current.value - 1][2];
             // Select visualization method
             if (form.visualization[0].checked) {
                 // remove current visualization
@@ -806,7 +806,7 @@ $(document).ready(function () {
         rangeslider.step = stepSize.value;
         style.innerHTML = ".myslider::-webkit-slider-thumb { width: " + 100 * windowSize.value / maxWindow + "% !important;}";
         modified = false;
-
+        firstUpload = false;
         finalResult.length = 0;
 
         parallelcalculation();
