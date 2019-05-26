@@ -9,6 +9,7 @@ $(document).ready(function () {
     var xAxis = d3.svg.axis().orient("top");
     var yAxis = d3.svg.axis().orient("left");
 
+    var workerpool = 100;
     var data = [];
     var cols = [];
     var links = [];
@@ -21,9 +22,7 @@ $(document).ready(function () {
     var links_to_draw = [];
     var barlinks_to_draw = [];
     var fdglinks_to_draw = [];
-
     var finalResult = [];
-    var finalResults = [];
 
     var svg;
     var g1;
@@ -47,9 +46,9 @@ $(document).ready(function () {
         current.value = this.value;
         setTimeout(function () {
             if (!firstUpload) {
-                links_to_draw = finalResult[parseFloat(current.value) - 1][0];
-                barlinks_to_draw = finalResult[parseFloat(current.value) - 1][1];
-                fdglinks_to_draw = finalResult[parseFloat(current.value) - 1][2];
+                links_to_draw = finalResult[current.value - 1][0];
+                barlinks_to_draw = finalResult[current.value - 1][1];
+                fdglinks_to_draw = finalResult[current.value - 1][2];
                 // Select visualization method
                 if (form.visualization[0].checked) {
                     // remove current visualization
@@ -70,7 +69,7 @@ $(document).ready(function () {
                     return;
                 }
             }
-        }, 1000)
+        }, 500)
 
     };
 
@@ -103,7 +102,7 @@ $(document).ready(function () {
                     return;
                 }
             }
-        }, 500)
+        }, 300)
     };
 
     setData(maxWindow);
@@ -181,7 +180,7 @@ $(document).ready(function () {
             stepSize.value = 1;
             setData(maxWindow);
 
-            for (var i = 0; i < categories; i++) {
+            for (var i = 0; i < maxWindow; i++) {
                 // get each column as key value pair
                 var elements = csvdata[i];  //{key1: "12490", key2: "341235", key3: "652405", key4: "83.9"}
                 var obj = {index: i};
@@ -326,7 +325,6 @@ $(document).ready(function () {
         modified = false;
         firstUpload = true;
         finalResult = [];
-        finalResults = [];
         $("svg").empty();
     }
 
@@ -731,32 +729,22 @@ $(document).ready(function () {
     }
 
     // calculate the correlations based on different startpoint in parallel
-    async function parallelcalculation() {
-        var jobs = [];
-
-        var j1 = current.value;
-        var j2 = stepSize.value;
-        var j = parseFloat(j1) + parseFloat(j2);
-
-        while (j < maxWindow) {
-            jobs.push(j - 1);
-            j = j + parseFloat(stepSize.value);
+    function parallelcalculation() {
+        for (var w = 1; w <= workerpool; w++) {
+            var worker = new Worker('work.js');
+            worker.postMessage([w, windowSize.value, maxWindow, data, cols, fdgNodes]);
+            worker.onmessage = function (e) {
+                if (e.data.length != 0) {
+                    e.data.forEach(function (ele) {
+                        finalResult.push(ele);
+                    })
+                }
+                worker.terminate();
+            }
+            worker.onerror = function (error) {
+                console.log(error.filename, error.lineno, error.message);
+            }
         }
-
-        var k = parseFloat(j1) - parseFloat(j2);
-        while (k > 0) {
-            jobs.push(k - 1);
-            k = k - parseFloat(stepSize.value);
-        }
-
-        for (var i = 0; i < maxWindow; i++) {
-            jobs.push(i);
-        }
-
-        let results = jobs.map(async (job) => await calculateCorrelation(job, windowSize.value));
-/*        for (const result of results) {
-            finalResults.push(await result);
-        }*/
     }
 
     // Update the graph after user settings
