@@ -188,7 +188,9 @@ $(document).ready(function () {
                     obj[col] = +elements[col];
                 });
                 data.push(obj);
+            }
 
+            for (var i = 0; i < categories; i++) {
                 // node data of Force-Directed-Graph
                 var node1 = [];
                 node1.name = cols[i];
@@ -795,9 +797,12 @@ $(document).ready(function () {
         style.innerHTML = ".myslider::-webkit-slider-thumb { width: " + 100 * windowSize.value / maxWindow + "% !important;}";
         modified = false;
         firstUpload = false;
-        finalResult.length = 0;
 
-        parallelcalculation();
+        // update correlation matrix if windowSize is changed
+        if(windowSize.onchange) {
+            finalResult.length = 0;
+            parallelcalculation();
+        }
     }
 
     // Initialize transformArray and zoom function for each visualization method
