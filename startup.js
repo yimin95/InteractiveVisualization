@@ -9,7 +9,7 @@ $(document).ready(function () {
     var xAxis = d3.svg.axis().orient("top");
     var yAxis = d3.svg.axis().orient("left");
 
-    var workerpool = 100;
+    var workerpool = 50;
     var data = [];
     var cols = [];
     var links = [];

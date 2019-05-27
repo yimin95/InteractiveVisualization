@@ -3,8 +3,8 @@ importScripts('https://unpkg.com/jeezy@1.12.11/lib/jeezy.min.js', 'https://cdnjs
 onmessage = function (e) {
     var data = e.data;
     var results = [];
-    var temp0 = (data[0] - 1) * data[2] / 100;
-    var temp1 = data[0] * data[2] / 100;
+    var temp0 = (data[0] - 1) * data[2] / 50;
+    var temp1 = data[0] * data[2] / 50;
 
     for (var i = parseInt(temp0); i < parseInt(temp1); i++) {
         var result = calculateCorrelation(i, data[1], data[2], data[3], data[4], data[5]);
