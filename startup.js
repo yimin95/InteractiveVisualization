@@ -29,7 +29,8 @@ $(document).ready(function () {
     var g2;
     var g3;
     var zoom;
-    var modified = false;
+    var windowSizeModified = false;
+    var stepSizeModified = false;
     var firstUpload = true;
 
 
@@ -137,23 +138,17 @@ $(document).ready(function () {
     }
 
     // Modify user settings
-    min.onchange = function () {
-        modified = true;
-    };
-    max.onchange = function () {
-        modified = true;
-    };
     windowSize.onchange = function () {
-        modified = true;
+        windowSizeModified = true;
     };
     stepSize.onchange = function () {
-        modified = true;
+        stepSizeModified = true;
     };
     current.onchange = function () {
         if (current.value > maxWindow) {
             alert("The maximum window size is " + maxWindow + "!");
         }
-        modified = true;
+        windowSizeModified = true;
     };
 
     $('#upload').click(function () {
@@ -292,8 +287,14 @@ $(document).ready(function () {
     d3.selectAll(".updateclass")
         .on("click", function () {
             // no changes of user settings
-            if (!modified) {
+            if (!windowSizeModified) {
                 if (firstUpload) return;
+                if (stepSize) {
+                    rangeslider.step = stepSize.value;
+                    style.innerHTML = ".myslider::-webkit-slider-thumb { width: " + 100 * windowSize.value / maxWindow + "% !important;}";
+                    stepSizeModified = false;
+                    return;
+                }
                 // remove current visualization
                 $("svg").empty();
 
@@ -329,7 +330,8 @@ $(document).ready(function () {
         fdglinks_to_draw = [];
         categories = 1;
         maxWindow = 0;
-        modified = false;
+        windowSizeModified = false;
+        stepSizeModified = false;
         firstUpload = true;
         finalResult = [];
         $("svg").empty();
@@ -805,7 +807,8 @@ $(document).ready(function () {
 
         rangeslider.step = stepSize.value;
         style.innerHTML = ".myslider::-webkit-slider-thumb { width: " + 100 * windowSize.value / maxWindow + "% !important;}";
-        modified = false;
+        windowSizeModified = false;
+        stepSizeModified = false;
         firstUpload = false;
 
         // update correlation matrix only if windowSize is changed
