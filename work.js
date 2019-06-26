@@ -18,6 +18,8 @@ function calculateCorrelation(i, value, maxWindow, data, cols, fdgNodes) {
     var arrayBarLinks = [];
     var arrayFdgLinks = [];
     var l = 0;
+    // whether the source equals to the target of a link
+    var eq = false;
 
     var corr = i + value > maxWindow ? jz.arr.correlationMatrix(data.slice(i), cols) :
         jz.arr.correlationMatrix(data.slice(i, i + value), cols);
@@ -32,8 +34,10 @@ function calculateCorrelation(i, value, maxWindow, data, cols, fdgNodes) {
 
         if (link1.source === link1.target) {
             l = l + cols.length;
+            eq = true;
         }
-        if (l > 0) {
+
+        if (l > 0 && !eq) {
             arrayBarLinks.push(link1);
 
             // link data of Force-Directed-Graph
@@ -55,6 +59,7 @@ function calculateCorrelation(i, value, maxWindow, data, cols, fdgNodes) {
             arrayFdgLinks.push(link2);
         }
         l--;
+        eq = false;
     });
 
     return [arrayLinks, arrayBarLinks, arrayFdgLinks];

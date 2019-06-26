@@ -201,6 +201,8 @@ $(document).ready(function () {
             var corr = jz.arr.correlationMatrix(data, cols);    //{column_x: String1, column_y: String2, correlation: Number}
 
             var l = 0;
+            // whether the source equals to the target of a link
+            var eq = false;
 
             corr.forEach(function (ele) {
                 var link1 = [];
@@ -212,8 +214,10 @@ $(document).ready(function () {
 
                 if (link1.source === link1.target) {
                     l = l + categories;
+                    eq = true;
                 }
-                if (l > 0) {
+
+                if (l > 0 && !eq) {
                     barLinks.push(link1);
 
                     // link data of Force-Directed-Graph
@@ -235,6 +239,7 @@ $(document).ready(function () {
                     fdgLinks.push(link2);
                 }
                 l--;
+                eq = false;
             });
             confirm("The max window size is " + maxWindow + " !");
         });
@@ -565,14 +570,19 @@ $(document).ready(function () {
                 return "translate(1,1)";
             });
 
+        // filter the links with minimal and maximal correlation value
+        fdglinks = fdglinks.filter(function(e){
+            return e.value <= max.value && e.value > min.value;
+        })
+
         var force = d3.layout.force()
             .nodes(d3.values(fdgnodes))
             .links(fdglinks)
             .size([width + margin.left + margin.right, height + margin.top + margin.bottom])
             .linkDistance(function (d) {
-                return d.value > max.value || d.value < min.value ? 0 : 200 * Math.sqrt(1 - d.value * d.value);
+                return 200 * Math.sqrt(1 - d.value * d.value);
             })
-            .charge(-15000)
+            .charge(-1500)
             .on("tick", tick)
             .start();
 
@@ -798,7 +808,7 @@ $(document).ready(function () {
         modified = false;
         firstUpload = false;
 
-        // update correlation matrix if windowSize is changed
+        // update correlation matrix only if windowSize is changed
         if(windowSize.onchange) {
             finalResult.length = 0;
             parallelcalculation();
