@@ -1,0 +1,51 @@
+\babel@toc {english}{}
+\contentsline {chapter}{Abstract}{i}{chapter*.1}
+\babel@toc {ngerman}{}
+\contentsline {chapter}{Zusammenfassung}{iii}{chapter*.2}
+\babel@toc {english}{}
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}
+\contentsline {section}{\numberline {1.1}Motivation}{1}{section.1.1}
+\contentsline {section}{\numberline {1.2}Challenges}{2}{section.1.2}
+\contentsline {subsection}{\numberline {1.2.1}The evolving nature of streams}{2}{subsection.1.2.1}
+\contentsline {subsection}{\numberline {1.2.2}The high-dimensionality}{2}{subsection.1.2.2}
+\contentsline {section}{\numberline {1.3}Goal of the thesis}{3}{section.1.3}
+\contentsline {section}{\numberline {1.4}Thesis outline}{3}{section.1.4}
+\contentsline {chapter}{\numberline {2}Visualization Methods}{7}{chapter.2}
+\contentsline {section}{\numberline {2.1}Correlation Matrix}{7}{section.2.1}
+\contentsline {section}{\numberline {2.2}Data Set Mtcars}{7}{section.2.2}
+\contentsline {section}{\numberline {2.3}Heatmap}{8}{section.2.3}
+\contentsline {section}{\numberline {2.4}Bar Graph}{8}{section.2.4}
+\contentsline {section}{\numberline {2.5}Force-Directed-Graph}{8}{section.2.5}
+\contentsline {chapter}{\numberline {3}Related Work}{9}{chapter.3}
+\contentsline {chapter}{\numberline {4}Interface}{13}{chapter.4}
+\contentsline {section}{\numberline {4.1}Design}{13}{section.4.1}
+\contentsline {section}{\numberline {4.2}Implementation}{14}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}D3.js}{14}{subsection.4.2.1}
+\contentsline {subsection}{\numberline {4.2.2}Details}{14}{subsection.4.2.2}
+\contentsline {chapter}{\numberline {5}Evaluation Via User Studies}{17}{chapter.5}
+\contentsline {section}{\numberline {5.1}Experimental Settings}{17}{section.5.1}
+\contentsline {subsection}{\numberline {5.1.1}Participants Profiles}{18}{subsection.5.1.1}
+\contentsline {subsection}{\numberline {5.1.2}Data Set}{18}{subsection.5.1.2}
+\contentsline {subsection}{\numberline {5.1.3}Settings of interface}{19}{subsection.5.1.3}
+\contentsline {section}{\numberline {5.2}Questionnaire}{19}{section.5.2}
+\contentsline {subsection}{\numberline {5.2.1}Basic Information}{20}{subsection.5.2.1}
+\contentsline {subsection}{\numberline {5.2.2}Visualization}{21}{subsection.5.2.2}
+\contentsline {subsection}{\numberline {5.2.3}Feedback}{21}{subsection.5.2.3}
+\contentsline {subsubsection}{\numberline {5.2.3.1}Participants Under Condition A/B/C}{21}{subsubsection.5.2.3.1}
+\contentsline {subsubsection}{\numberline {5.2.3.2}Participants Under Condition D}{22}{subsubsection.5.2.3.2}
+\contentsline {section}{\numberline {5.3}Script For Conducting The Experiment}{23}{section.5.3}
+\contentsline {section}{\numberline {5.4}Result}{23}{section.5.4}
+\contentsline {subsection}{\numberline {5.4.1}Statics about the visualization part}{24}{subsection.5.4.1}
+\contentsline {subsection}{\numberline {5.4.2}Feedback}{24}{subsection.5.4.2}
+\contentsline {chapter}{\numberline {6}Conclusion}{31}{chapter.6}
+\contentsline {chapter}{\numberline {7}Appendix}{35}{chapter.7}
+\contentsline {section}{\numberline {7.1}Consent Form}{36}{section.7.1}
+\contentsline {section}{\numberline {7.2}Questionnaire}{39}{section.7.2}
+\contentsline {subsection}{\numberline {7.2.1}Questionnaire For Participants under Condition A/B/C}{39}{subsection.7.2.1}
+\contentsline {subsubsection}{\numberline {7.2.1.1}Participants using Data Set 1}{39}{subsubsection.7.2.1.1}
+\contentsline {subsubsection}{\numberline {7.2.1.2}Participants using Data Set 2}{43}{subsubsection.7.2.1.2}
+\contentsline {subsubsection}{\numberline {7.2.1.3}Participants using Data Set 3}{47}{subsubsection.7.2.1.3}
+\contentsline {subsection}{\numberline {7.2.2}Questionnaire For Participants under Condition D}{51}{subsection.7.2.2}
+\contentsline {subsubsection}{\numberline {7.2.2.1}Participants using Data Set 1}{51}{subsubsection.7.2.2.1}
+\contentsline {subsubsection}{\numberline {7.2.2.2}Participants using Data Set 2}{57}{subsubsection.7.2.2.2}
+\contentsline {subsubsection}{\numberline {7.2.2.3}Participants using Data Set 3}{63}{subsubsection.7.2.2.3}

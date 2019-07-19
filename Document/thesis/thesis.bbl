@@ -1,0 +1,54 @@
+\begin{thebibliography}{1}
+
+\bibitem{Matrics}
+{\sc Albuquerque, G., Eisemann, M., Lehmann, D.~J., Theisel, H., and Magnor,
+  M.}
+\newblock {Quality-Based Visualization Matrices.}
+\newblock {\em In Proceedings of the Vision, Modeling and Visualization\/}
+  (2009), 341--350.
+
+\bibitem{FEXUM}
+{\sc B, L.~K., Riekenbrauck, N., Thevessen, D., Pappik, M., Stebner, A., Kunze,
+  J., Meissner, A., Shekar, A.~K., and Emmanuel, M.}
+\newblock {Machine Learning and Knowledge Discovery in Databases}.
+\newblock 404--408.
+
+\bibitem{FILIS2011152}
+{\sc Filis, G., Degiannakis, S., and Floros, C.}
+\newblock Dynamic correlation between stock market and oil prices: The case of
+  oil-importing and oil-exporting countries.
+\newblock {\em International Review of Financial Analysis 20}, 3 (2011), 152 --
+  164.
+
+\bibitem{bar}
+{\sc Kelley, W. M.;~Donnelly, R.~A.}
+\newblock The humongous book of statistics problems.
+\newblock {\em New York\/} (2009).
+
+\bibitem{force}
+{\sc Kobourov, S.~G.}
+\newblock Spring embedders and force-directed graph drawing algorithms.
+\newblock {\em eprint arXiv:1201.3011\/} (2012).
+
+\bibitem{D3}
+{\sc Murray, S.}
+\newblock Interactive data visualization for the web, an introduction to
+  designing with d3.
+\newblock 272.
+
+\bibitem{correlation}
+{\sc Rodgers, J. L.;~Nicewander, W.~A.}
+\newblock Thirteen ways to look at the correlation coefficient.
+\newblock {\em The American Statistician\/} (1988).
+
+\bibitem{simons1999should}
+{\sc Simons, K., et~al.}
+\newblock Should us investors invest overseas?
+\newblock {\em New England Economic Review\/} (1999), 29--40.
+
+\bibitem{heatmap}
+{\sc Wilkinson, Leland;~Friendly, M.}
+\newblock The history of the cluster heat map.
+\newblock {\em The American Statistician\/} (2009).
+
+\end{thebibliography}
